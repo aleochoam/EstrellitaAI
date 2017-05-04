@@ -19,6 +19,15 @@ IZQUIERDA = 4
 ACIERTO   = 1
 FALLO     = 0
 
+def getDistancia(cell1, cell2):
+    distancia_x = abs(cell2[0] - cell1[0])
+    distancia_y = abs(cell2[1] - cell1[1])
+    distancia_total = distancia_x + distancia_y
+    if(distancia_total<=5):
+        return distancia_total
+    else:
+        return 5
+
 def traducir_posicion(i, j):
   return i*5+j+1
 
@@ -43,6 +52,7 @@ class AgenteJ_A(object):
     self.ownBoard = [[0 for x in range(5)] for y in range (5)]
     self.oponentBoard = [[1/25 for x in range(5)] for y in range(5)]
     self.ultimaAccion = None
+    self.ultimaPosicion = 0
 
 
   def jugar(self, resultado_accion, accion_oponente, estrellita):
@@ -50,10 +60,16 @@ class AgenteJ_A(object):
     self.actualizar_datos(resultado_accion)
     self.actualizar_oponente(accion_oponente)
 
-    
+    #TODO: Esto es un borrador
+    if mayorProbabilidad < 0.7:
+      posicionASensar = posicionConMayorProbabilidad
+      self.ultimaAccion = OBSERVAR
+      self.ultimaPosicion = posicionASensar
 
-  def jugar_sensor(self, sensor):
-    pass
+    else mayorProbabilidad:
+      self.ultimaAccion = DISPARAR
+      self.ultimaPosicion = posicionADisparar
+
 
   def colocar_estrellita(self, estrellita):
     i, j = traducir_posicion(estrellita)
@@ -73,7 +89,7 @@ class AgenteJ_A(object):
       if resultado_accion == ACIERTO: # Se reestablecen las probabilidades
         self.oponentBoard = [[1/25 for x in range(5)] for y in range(5)]
       elif resultado_accion == FALLO: #Bajar las probabilidades a cero
-        i,j = self.ultimoAtaque
+        i,j = self.ultimaPosicion
         self.opponentBoard[i][j] = 0
 
     elif self.ultimaAccion == OBSERVAR:
@@ -82,9 +98,22 @@ class AgenteJ_A(object):
     elif self.ultimaAccion == MOVER:
       pass
 
-  def actualizar_probabilidades(self, resultado_accion):
-      pass
+  def actualizar_probabilidades(self, color):
+      # TODO: ARREGLAR ESTO
 
+      s = 0.0
+      for x in range(len(self.oponentBoard)):
+        for y in range(len(self.oponentBoard[x])):
+          distancia_cells = getDistancia((x, y), ultimaPosicion)
+          self.oponentBoard[x][y] = self.oponentBoard[x][y] * colores[distancia_cells][color]
+          s+= self.oponentBoard[x][y]
+
+      self.normalizar(s)
+
+  def normalizar(self, s):
+    for i in range(len(self.oponentBoard)):
+      for j in range(len(self.oponentBoard[i])):
+          self.oponentBoard[i][j] = self.oponentBoard[i][j] / s
 
 
 if __name__ == '__main__':
