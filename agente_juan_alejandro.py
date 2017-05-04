@@ -68,6 +68,10 @@ class AgenteJ_A(object):
     self.actualizar_datos(resultado_accion)
     self.actualizar_oponente(accion_oponente)
 
+    #Revisar si las probabilidades del oponente, luego de saber qué acción realizaron en este momento,
+    #son más peligrosas que las de nosotros luego de haber recibido los datos del sensor.
+    #Esto con lo de la info perfecta.
+
     #TODO: Esto es un borrador
     if mayorProbabilidad < 0.7:
       posicionASensar = posicionConMayorProbabilidad
@@ -89,6 +93,7 @@ class AgenteJ_A(object):
     elif tipoAccion == OBSERVAR:
       self.actualizarProbabilidadesSobreMi(parametroAccion, resultado)
     elif tipoAccion == MOVER:
+      self.moverProbabilidadesSobreEnemigo()
       pass
 
   def actualizar_datos(self.resultado_accion):
@@ -99,13 +104,14 @@ class AgenteJ_A(object):
         self.infoSobreOp[i][j] = 1
       elif resultado_accion == FALLO: #Bajar las probabilidades a cero
         i,j = self.ultimaPosicion
-        self.opponentBoard[i][j] = 0
-      self.normalizar()
+        self.infoSobreOp[i][j] = 0
+      self.infoSobreOp = self.normalizar(self.InfoSobreOp)
 
     elif self.ultimaAccion == OBSERVAR:
       self.actualizar_probabilidades(resultado_accion)
 
     elif self.ultimaAccion == MOVER:
+      #Replicar la funcion moverProbabilidadesSobreEnemigo para mover las probabilidades mías.
       pass
 
   def actualizar_probabilidades(self, color):
@@ -114,11 +120,10 @@ class AgenteJ_A(object):
       s = 0.0
       for x in range(len(self.infoSobreOp)):
         for y in range(len(self.infoSobreOp[x])):
-          distancia_cells = getDistancia((x, y), ultimaPosicion)
+          distancia_cells = getDistancia((x, y), self.ultimaPosicion)
           self.infoSobreOp[x][y] = self.infoSobreOp[x][y] * colores[distancia_cells][color]
-          s+= self.infoSobreOp[x][y]
-
-      self.normalizar()
+          #s+= self.infoSobreOp[x][y]
+      self.infoSobreOp = self.normalizar(self.infoSobreOp)
 
   def normalizar(self, matriz):
     s = 0.0
@@ -133,6 +138,27 @@ class AgenteJ_A(object):
 
     return matriz
 
+  def movimientoPermitido(movimiento):
+    return movimiento[0] >= 0 and movimiento[0] <= 4 and movimiento[1] >= 0 and movimiento[1] <= 4
+
+  def movimientosPosibles(celda):
+    movimientos = [(-1,0),(1,0),(0,-1),(0,1)]
+    celdasPosibles = []
+    for i in range (len(movimientos)):
+      movimientoNuevo = (celda[0] + movimientos[i][0], celda[1] + movimientos[i][1])
+      if(movimientoPermitido(movimientoNuevo)):
+        celdasPosibles.append(movimientoNuevo)
+    return celdasPosibles
+
+  def moverProbabilidadesSobreEnemigo():
+    matriz = self.infoSobreOp
+    matrizMovida = [[0 for x in range(5)] for y in range(5)] 
+    for i in range(len(matriz)):
+      for j in range(len(matriz[i])):
+        movimientosPosibles = movimientosPosibles((i,j))
+        for movimiento in movimientosPosibles:
+          matrizMovida[movimiento[0]][movimiento[1]] += matriz[i][j]/len(movimientosPosibles)
+    return matrizMovida
 
   def actualizarProbabilidadesSobreMi(self, posicionSensada, color):
     matriz = self.infoOpSobreMi
