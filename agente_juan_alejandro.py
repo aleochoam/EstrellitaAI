@@ -1,11 +1,18 @@
 import random
+from copy import deepcopy
 
 colores = {
-  "verde" : random.choice[0,1],
-  "amarillo" : random.choice[2,3],
-  "anaranjado" : random.choice[3,4],
-  "rojo" : random.choice[4,5]
+  "verde" : 0,
+  "amarillo" : 1,
+  "anaranjado" : 2,
+  "rojo" : 3
 }
+
+pastel =  [[0.70, 0.15, 0.1, 0.05],
+           [0.17, 0.6, 0.17, 0.06],
+           [0.06, 0.17, 0.6, 0.17],
+           [0.05, 0.12, 0.23, 0.6],
+           [0.05, 0.1, 0.15, 0.8]]
 
 DISPARAR  = 1
 OBSERVAR  = 2
@@ -23,10 +30,10 @@ def getDistancia(cell1, cell2):
     distancia_x = abs(cell2[0] - cell1[0])
     distancia_y = abs(cell2[1] - cell1[1])
     distancia_total = distancia_x + distancia_y
-    if(distancia_total<=5):
+    if(distancia_total<=4):
         return distancia_total
     else:
-        return 5
+        return 4
 
 def traducir_posicion(i, j):
   return i*5+j+1
@@ -48,11 +55,12 @@ class AgenteJ_A(object):
   """Agente realizado por Juan Daniel Morales y Alejandro Ochoa"""
   def __init__(self, jugador):
     super(AgenteJ_A, self).__init__()
-    self.jugador = jugador
-    self.ownBoard = [[0 for x in range(5)] for y in range (5)]
-    self.oponentBoard = [[1/25 for x in range(5)] for y in range(5)]
-    self.ultimaAccion = None
-    self.ultimaPosicion = 0
+    self.jugador        = jugador
+    self.estrellita     = 0 # Donde esta mi estrella
+    self.infoOpSobreMi  = [[1/25 for x in range(5)] for y in range(5)] # La mia como el la ve
+    self.infoSobreOp    = [[1/25 for x in range(5)] for y in range(5)] #La de el
+    self.ultimaAccion   = None
+    self.ultimaPosicion = (0,0)
 
 
   def jugar(self, resultado_accion, accion_oponente, estrellita):
@@ -72,25 +80,27 @@ class AgenteJ_A(object):
 
 
   def colocar_estrellita(self, estrellita):
-    i, j = traducir_posicion(estrellita)
-    self.ownBoard[i][j] = 1
+    self.estrellita = estrellita
 
   def actualizar_oponente(accion_oponente):
     tipoAccion, parametroAccion, resultado = accion_oponente
     if tipoAccion == DISPARAR:
       pass
     elif tipoAccion == OBSERVAR:
-      pass
+      self.actualizarProbabilidadesSobreMi(parametroAccion, resultado)
     elif tipoAccion == MOVER:
       pass
 
   def actualizar_datos(self.resultado_accion):
     if self.ultimaAccion == DISPARAR:
       if resultado_accion == ACIERTO: # Se reestablecen las probabilidades
-        self.oponentBoard = [[1/25 for x in range(5)] for y in range(5)]
+        # self.infoSobreOp = [[1/25 for x in range(5)] for y in range(5)]
+        i,j = self.ultimaPosicion
+        self.infoSobreOp[i][j] = 1
       elif resultado_accion == FALLO: #Bajar las probabilidades a cero
         i,j = self.ultimaPosicion
         self.opponentBoard[i][j] = 0
+      self.normalizar()
 
     elif self.ultimaAccion == OBSERVAR:
       self.actualizar_probabilidades(resultado_accion)
@@ -102,21 +112,42 @@ class AgenteJ_A(object):
       # TODO: ARREGLAR ESTO
 
       s = 0.0
-      for x in range(len(self.oponentBoard)):
-        for y in range(len(self.oponentBoard[x])):
+      for x in range(len(self.infoSobreOp)):
+        for y in range(len(self.infoSobreOp[x])):
           distancia_cells = getDistancia((x, y), ultimaPosicion)
-          self.oponentBoard[x][y] = self.oponentBoard[x][y] * colores[distancia_cells][color]
-          s+= self.oponentBoard[x][y]
+          self.infoSobreOp[x][y] = self.infoSobreOp[x][y] * colores[distancia_cells][color]
+          s+= self.infoSobreOp[x][y]
 
-      self.normalizar(s)
+      self.normalizar()
 
-  def normalizar(self, s):
-    for i in range(len(self.oponentBoard)):
-      for j in range(len(self.oponentBoard[i])):
-          self.oponentBoard[i][j] = self.oponentBoard[i][j] / s
+  def normalizar(self, matriz):
+    s = 0.0
+
+    for i in range(len(matriz)):
+      for j in range(len(matriz[i])):
+        s += matriz[i][j]
+
+    for i in range(len(matriz)):
+      for j in range(len(matriz[i])):
+          matriz[i][j] = matriz[i][j] / s
+
+    return matriz
+
+
+  def actualizarProbabilidadesSobreMi(self, posicionSensada, color):
+    matriz = self.infoOpSobreMi
+    for i in range(len(matriz)):
+      for j in range(len(matriz[i])):
+        distancia = getDistancia((i,j), traducir_posicion(posicionSensada))
+        matriz[i][j] *= pastel[distancia][colores[color]]
+        #no le tengo la fe
+        
+    self.infoOpSobreMi = self.normalizar(matriz)
+
+        
 
 
 if __name__ == '__main__':
   a = AgenteJ_A(1)
   a.jugar(None,[1,24,3],12)
-  imprimir_matriz(a.ownBoard)
+  imprimir_matriz(a.infoOpSobreMi)
