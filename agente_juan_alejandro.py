@@ -12,7 +12,7 @@ pastel =  [[0.70, 0.15, 0.1, 0.05],
            [0.17, 0.6, 0.17, 0.06],
            [0.06, 0.17, 0.6, 0.17],
            [0.05, 0.12, 0.23, 0.6],
-           [0.05, 0.1, 0.15, 0.8]]
+           [0.03, 0.07, 0.1, 0.8]]
 
 DISPARAR  = 1
 OBSERVAR  = 2
@@ -53,18 +53,19 @@ def imprimir_matriz(matriz):
 
 class AgenteJ_A(object):
   """Agente realizado por Juan Daniel Morales y Alejandro Ochoa"""
-  def __init__(self, jugador):
+  def __init__(self):
     super(AgenteJ_A, self).__init__()
-    self.jugador        = jugador
+    self.jugador        = 0
     self.estrellita     = 0 # Donde esta mi estrella
     self.infoOpSobreMi  = [[1/25 for x in range(5)] for y in range(5)] # La mia como el la ve
     self.infoSobreOp    = [[1/25 for x in range(5)] for y in range(5)] #La de el
-    self.ultimaAccion   = None
+    self.ultimaAccion   = OBSERVAR
     self.ultimaPosicion = (0,0)
 
 
-  def jugar(self, resultado_accion, accion_oponente, estrellita):
-    self.colocar_estrellita(estrellita)
+  def jugar(self, jugador, resultado_accion, accion_oponente, estrellita):
+    self.jugador = jugador
+    self.estrellita = estrellita
     self.actualizar_datos(resultado_accion)
     self.actualizar_oponente(accion_oponente)
 
@@ -72,21 +73,16 @@ class AgenteJ_A(object):
     #son más peligrosas que las de nosotros luego de haber recibido los datos del sensor.
     #Esto con lo de la info perfecta.
 
-    #TODO: Esto es un borrador
-    if mayorProbabilidad < 0.7:
-      posicionASensar = posicionConMayorProbabilidad
-      self.ultimaAccion = OBSERVAR
-      self.ultimaPosicion = posicionASensar
+    # if mayorProbabilidad < 0.7:
+    #   posicionASensar = posicionConMayorProbabilidad
+    #   self.ultimaAccion = OBSERVAR
+    #   self.ultimaPosicion = posicionASensar
 
-    else mayorProbabilidad:
-      self.ultimaAccion = DISPARAR
-      self.ultimaPosicion = posicionADisparar
+    # else:
+    #   self.ultimaAccion = DISPARAR
+    #   self.ultimaPosicion = posicionADisparar
 
-
-  def colocar_estrellita(self, estrellita):
-    self.estrellita = estrellita
-
-  def actualizar_oponente(accion_oponente):
+  def actualizar_oponente(self, accion_oponente):
     tipoAccion, parametroAccion, resultado = accion_oponente
     if tipoAccion == DISPARAR:
       pass
@@ -96,7 +92,7 @@ class AgenteJ_A(object):
       self.moverProbabilidadesSobreEnemigo()
       pass
 
-  def actualizar_datos(self.resultado_accion):
+  def actualizar_datos(self, resultado_accion):
     if self.ultimaAccion == DISPARAR:
       if resultado_accion == ACIERTO: # Se reestablecen las probabilidades
         # self.infoSobreOp = [[1/25 for x in range(5)] for y in range(5)]
@@ -111,18 +107,15 @@ class AgenteJ_A(object):
       self.actualizar_probabilidades(resultado_accion)
 
     elif self.ultimaAccion == MOVER:
-      #Replicar la funcion moverProbabilidadesSobreEnemigo para mover las probabilidades mías.
-      pass
+      self.moverProbabilidadesSobreMi()
 
   def actualizar_probabilidades(self, color):
-      # TODO: ARREGLAR ESTO
-
       s = 0.0
       for x in range(len(self.infoSobreOp)):
         for y in range(len(self.infoSobreOp[x])):
           distancia_cells = getDistancia((x, y), self.ultimaPosicion)
-          self.infoSobreOp[x][y] = self.infoSobreOp[x][y] * colores[distancia_cells][color]
-          #s+= self.infoSobreOp[x][y]
+          self.infoSobreOp[x][y] = self.infoSobreOp[x][y] * pastel[distancia_cells][colores[color]]
+          # s+= self.infoSobreOp[x][y]
       self.infoSobreOp = self.normalizar(self.infoSobreOp)
 
   def normalizar(self, matriz):
@@ -138,27 +131,40 @@ class AgenteJ_A(object):
 
     return matriz
 
-  def movimientoPermitido(movimiento):
+  def movimientoPermitido(self, movimiento):
     return movimiento[0] >= 0 and movimiento[0] <= 4 and movimiento[1] >= 0 and movimiento[1] <= 4
 
-  def movimientosPosibles(celda):
+  def getMovimientosPosibles(self, celda):
     movimientos = [(-1,0),(1,0),(0,-1),(0,1)]
     celdasPosibles = []
-    for i in range (len(movimientos)):
+    for i in range(len(movimientos)):
       movimientoNuevo = (celda[0] + movimientos[i][0], celda[1] + movimientos[i][1])
-      if(movimientoPermitido(movimientoNuevo)):
+      if(self.movimientoPermitido(movimientoNuevo)):
         celdasPosibles.append(movimientoNuevo)
     return celdasPosibles
 
-  def moverProbabilidadesSobreEnemigo():
+  def moverProbabilidadesSobreEnemigo(self):
     matriz = self.infoSobreOp
-    matrizMovida = [[0 for x in range(5)] for y in range(5)] 
+    matrizMovida = [[0 for x in range(5)] for y in range(5)]
     for i in range(len(matriz)):
       for j in range(len(matriz[i])):
-        movimientosPosibles = movimientosPosibles((i,j))
+        movimientosPosibles = self.getMovimientosPosibles((i,j))
+        for movimiento in movimientosPosibles:
+          matrizMovida[movimiento[0]][movimiento[1]] += matriz[i][j]/len(movimientosPosibles)
+    matrizMovida = self.normalizar(matrizMovida)
+    return matrizMovida
+
+
+  def moverProbabilidadesSobreMi(self):
+    matriz = self.infoOpSobreMi
+    matrizMovida = [[0 for x in range(5)] for y in range(5)]
+    for i in range(len(matriz)):
+      for j in range(len(matriz[i])):
+        movimientosPosibles = self.getMovimientosPosibles((i,j))
         for movimiento in movimientosPosibles:
           matrizMovida[movimiento[0]][movimiento[1]] += matriz[i][j]/len(movimientosPosibles)
     return matrizMovida
+
 
   def actualizarProbabilidadesSobreMi(self, posicionSensada, color):
     matriz = self.infoOpSobreMi
@@ -166,7 +172,7 @@ class AgenteJ_A(object):
       for j in range(len(matriz[i])):
         distancia = getDistancia((i,j), traducir_posicion(posicionSensada))
         matriz[i][j] *= pastel[distancia][colores[color]]
-        #no le tengo la fe
+        #le tengo la fe
         
     self.infoOpSobreMi = self.normalizar(matriz)
 
@@ -174,6 +180,15 @@ class AgenteJ_A(object):
 
 
 if __name__ == '__main__':
-  a = AgenteJ_A(1)
-  a.jugar(None,[1,24,3],12)
+  a = AgenteJ_A()
+  a.jugar(1, "amarillo", [OBSERVAR, 24, "verde"], 24)
+  print("información del oponente")
   imprimir_matriz(a.infoOpSobreMi)
+  print("información sobre oponente")
+  imprimir_matriz(a.infoSobreOp)
+  a.ultimaAccion = MOVER
+  a.jugar(1, None, [MOVER, None, None], 24)
+  print("información del oponente")
+  imprimir_matriz(a.infoOpSobreMi)
+  print("información sobre oponente")
+  imprimir_matriz(a.infoSobreOp)
