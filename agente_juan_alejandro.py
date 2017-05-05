@@ -89,13 +89,11 @@ class AgenteJ_A(object):
     elif tipoAccion == OBSERVAR:
       self.actualizarProbabilidadesSobreMi(parametroAccion, resultado)
     elif tipoAccion == MOVER:
-      self.moverProbabilidadesSobreEnemigo()
-      pass
+      self.infoSobreOp = self.moverProbabilidadesSobreEnemigo()
 
   def actualizar_datos(self, resultado_accion):
     if self.ultimaAccion == DISPARAR:
       if resultado_accion == ACIERTO: # Se reestablecen las probabilidades
-        # self.infoSobreOp = [[1/25 for x in range(5)] for y in range(5)]
         i,j = self.ultimaPosicion
         self.infoSobreOp[i][j] = 1
       elif resultado_accion == FALLO: #Bajar las probabilidades a cero
@@ -107,7 +105,7 @@ class AgenteJ_A(object):
       self.actualizar_probabilidades(resultado_accion)
 
     elif self.ultimaAccion == MOVER:
-      self.moverProbabilidadesSobreMi()
+      self.infoOpSobreMi =  self.moverProbabilidadesSobreMi()
 
   def actualizar_probabilidades(self, color):
       s = 0.0
@@ -144,6 +142,7 @@ class AgenteJ_A(object):
     return celdasPosibles
 
   def moverProbabilidadesSobreEnemigo(self):
+    print("Moviendo las probabilidades sobre enemigo")
     matriz = self.infoSobreOp
     matrizMovida = [[0 for x in range(5)] for y in range(5)]
     for i in range(len(matriz)):
@@ -156,6 +155,7 @@ class AgenteJ_A(object):
 
 
   def moverProbabilidadesSobreMi(self):
+    print("Moviendo las probabilidades sobre mi")
     matriz = self.infoOpSobreMi
     matrizMovida = [[0 for x in range(5)] for y in range(5)]
     for i in range(len(matriz)):
@@ -172,8 +172,6 @@ class AgenteJ_A(object):
       for j in range(len(matriz[i])):
         distancia = getDistancia((i,j), traducir_posicion(posicionSensada))
         matriz[i][j] *= pastel[distancia][colores[color]]
-        #le tengo la fe
-        
     self.infoOpSobreMi = self.normalizar(matriz)
 
         
