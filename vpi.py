@@ -25,6 +25,7 @@ from agente_juan_alejandro import *
 #   elif(color == 3):
 #     return "rojo"
 
+#Arreglar
 def getMax(matriz):
   matriz = np.array(matriz)
   mejor = matriz.max()

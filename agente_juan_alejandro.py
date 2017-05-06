@@ -100,7 +100,9 @@ class AgenteJ_A(object):
     posASensar, utilidad = vpi(self.infoSobreOp)
     
     if utilidad - stdMatrizActual <= 10:
-      pass
+      return [DISPARAR, 1] #cambiar esto TODO
+    else:
+      #sensar en posASensar
 
 
     #Revisar si las probabilidades del oponente, luego de saber qué acción realizaron en este momento,
