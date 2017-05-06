@@ -1,5 +1,6 @@
 from copy import deepcopy
 from vpi import *
+import sys
 colores = {
   "verde"     : 0,
   "amarillo"  : 1,
@@ -34,14 +35,15 @@ def getDistancia(cell1, cell2):
     else:
         return 4
 
-def traducir_a_posicion(i, j):
-  return i*5+j+1
-
 def traducir_posicion(num):
-  num -= 1
-  j = (num%5)
-  i = num//5
-  return (i,j)
+  if type(num) is tuple:
+    i,j = num
+    return i*5+j+1
+  else:
+    num -= 1
+    j = (num%5)
+    i = num//5
+    return (i,j)
 
 
 def normalizar(matriz):
@@ -88,24 +90,33 @@ class AgenteJ_A(object):
       self.primera_jugada = False
       if accion_oponente is not None:
         self.actualizar_oponente(accion_oponente)
-      self.ultimaPosicion = traducir_a_posicion(1,1)
-      return [SENSAR, traducir_a_posicion(1,1)]
+      self.ultimaPosicion = traducir_posicion(1,1)
+      return [SENSAR, traducir_posicion(1,1)]
 
     self.jugador = jugador
     self.estrellita = estrellita
     self.actualizar_datos(resultado_accion)
     self.actualizar_oponente(accion_oponente)
 
+    maxVal, posMax = getMax(self.infoOpSobreMi)
+    if maxVal >= 0.65 and posMax == self.estrellita:
+      self.ultimaAccion = MOVER
+      self.ultimaPosicion = (0,0)
+      if estrellita > 0:
+        return [MOVER, IZQUIERDA]
+      else:
+        return [MOVER, DERECHA]
+
     utilidadActual = getUtilidad(self.infoSobreOp)
     posASensar, utilidad = vpi(self.infoSobreOp)
     print("Utilidad actual ", utilidadActual)
+    
     if utilidad - utilidadActual <= 8:
       maxVal, posMax = getMax(self.infoSobreOp)
-      i,j = posMax
       print("Disparar en ", posMax)
-      self.ultimaPosicion = traducir_a_posicion(i,j)
+      self.ultimaPosicion = traducir_posicion(posMax)
       self.ultimaAccion = DISPARAR
-      return [DISPARAR, traducir_a_posicion(i,j)] #cambiar esto TODO
+      return [DISPARAR, traducir_posicion(posMax)]
     else:
       print("Sensar en ", posASensar)
       self.ultimaPosicion = posASensar
@@ -113,24 +124,11 @@ class AgenteJ_A(object):
       return [SENSAR, posASensar]
 
 
-    #Revisar si las probabilidades del oponente, luego de saber qué acción realizaron en este momento,
-    #son más peligrosas que las de nosotros luego de haber recibido los datos del sensor.
-    #Esto con lo de la info perfecta.
-
-    # if mayorProbabilidad < 0.7:
-    #   posicionASensar = posicionConMayorProbabilidad
-    #   self.ultimaAccion = SENSAR
-    #   self.ultimaPosicion = posicionASensar
-
-    # else:
-    #   self.ultimaAccion = DISPARAR
-    #   self.ultimaPosicion = posicionADisparar
-
-
   def actualizar_datos(self, resultado_accion):
     if self.ultimaAccion == DISPARAR:
       if resultado_accion == ACIERTO: # Se reestablecen las probabilidades
         i,j = traducir_posicion(self.ultimaPosicion)
+        self.infoSobreOp = [[0 for x in range(5)] for y in range(5)]
         self.infoSobreOp[i][j] = 1
       elif resultado_accion == FALLO: #Bajar las probabilidades a cero
         i,j = traducir_posicion(self.ultimaPosicion)
@@ -186,13 +184,15 @@ if __name__ == '__main__':
   a = AgenteJ_A()
   color = getColor(a.ultimaPosicion)
   print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
+  imprimir_matriz(a.infoSobreOp)
   [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
   numerito = int(input("Ingrese accion: "))
   while(numerito >= 0):
     if(accion == DISPARAR):
-      if(parametroAccion == 13):
+      if(parametroAccion == traducir_posicion(estrellita)):
         print("Le diste ppeeeerrroooo")
-        [accion, parametroAccion] = a.jugar(1, ACIERTO, [SENSAR, 24, "verde"], 24)
+        [accion, parametroAccion] = a.jugar(1, ACIERTO, [MOVER, None, None], 24)
+        estrellita = (2,3)
       else:
         print("Fallaste perrroooo")
         [accion, parametroAccion] = a.jugar(1, FALLO, [SENSAR, 24, "verde"], 24)
@@ -200,6 +200,7 @@ if __name__ == '__main__':
         color = getColor(a.ultimaPosicion)
         print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
         [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
+    imprimir_matriz(a.infoSobreOp)
     numerito = int(input("Ingrese accion: "))
     
   print(np.array(a.infoSobreOp))

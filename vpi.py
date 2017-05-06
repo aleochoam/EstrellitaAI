@@ -44,7 +44,6 @@ def vpi(matriz):
     probColor       = parte3(probConjunta)
     utilidades.append(simular(matriz, (i,j), probColor))
 
-  print_utilidades(utilidades)
   mejorUtilidad = max(utilidades)
   print("La mejor utilidad la tiene la posicion ", utilidades.index(mejorUtilidad)+1, "con: ", mejorUtilidad)
   return utilidades.index(mejorUtilidad)+1, mejorUtilidad
@@ -74,21 +73,21 @@ def parte2(probDistancia):
       1: sensor[1][1] * probDistancia[1],
       2: sensor[2][1] * probDistancia[2],
       3: sensor[3][1] * probDistancia[3],
-      4: sensor[4][0] * probDistancia[4]
+      4: sensor[4][1] * probDistancia[4]
     },
     "anaranjado": {
       0: sensor[0][2] * probDistancia[0],
       1: sensor[1][2] * probDistancia[1],
       2: sensor[2][2] * probDistancia[2],
       3: sensor[3][2] * probDistancia[3],
-      4: sensor[4][0] * probDistancia[4]
+      4: sensor[4][2] * probDistancia[4]
     },
     "rojo": {
       0: sensor[0][3] * probDistancia[0],
       1: sensor[1][3] * probDistancia[1],
       2: sensor[2][3] * probDistancia[2],
       3: sensor[3][3] * probDistancia[3],
-      4: sensor[4][0] * probDistancia[4]
+      4: sensor[4][3] * probDistancia[4]
     }
   }
 
@@ -101,6 +100,7 @@ def parte3(probConjunta):
     "anaranjado" : sum(probConjunta["anaranjado"].values()),
     "rojo" : sum(probConjunta["rojo"].values())
   }
+
 
   s = sum(probs.values())
 
@@ -115,10 +115,9 @@ def parte3(probConjunta):
 
 def simular(matriz, pos, probColor):
   utilidadTotal = 0
-  i,j = pos
 
   for color in probColor.keys():
-    matrizSimulada = actualizar_probabilidades(matriz, traducir_a_posicion(i,j), color)
+    matrizSimulada = actualizar_probabilidades(matriz, traducir_posicion(pos), color)
     utilidadTotal += getUtilidad(matrizSimulada)*probColor[color]
 
   return utilidadTotal
@@ -157,7 +156,7 @@ def getUtilidad(matriz):
 def getProbsAXPosiciones(matriz, pos, x):
   prob = 0.0
   for casilla in getCasillasAXPosiciones(matriz, pos, x):
-    prob += matriz[pos[0]][pos[1]]
+    prob += matriz[casilla[0]][casilla[1]]
   return prob
 
 def getCasillasAXPosiciones(matriz, pos, x):
@@ -174,5 +173,4 @@ def print_utilidades(utilidades):
 
 
 if __name__ == '__main__':
-  a = [[1,2,3,4], [5,6,7,8]]
-  print(getMax(a))
+  pass
