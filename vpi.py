@@ -1,29 +1,38 @@
 import copy
+import random
 import numpy as np
+
 from agente_juan_alejandro import *
-estrellita = (2,2)
-def getColor(celda):
-  distancia = getDistancia(celda, estrellita)
-  rand = random.random()
-  prob = 0
-  color = 0
-  for j in range (len(sensor[distancia])):
-    prob += sensor[distancia][j]
-    if(random<prob):
-      color = j
-      break
-  if(color == 0):
-    return "verde"
-  elif(color == 1):
-    return "amarillo"
-  elif(color == 2):
-    return "anaranjado"
-  elif(color == 3):
-    return "rojo"
+
+
+# def getColor(celda):
+#   i,j = traducir_posicion(celda)
+#   distancia = getDistancia((i,j), estrellita)
+#   rand = random.random()
+#   prob = 0
+#   color = 0
+#   for j in range (len(sensor[distancia])):
+#     prob += sensor[distancia][j]
+#     if(rand<prob):
+#       color = j
+#       break
+#   if(color == 0):
+#     return "verde"
+#   elif(color == 1):
+#     return "amarillo"
+#   elif(color == 2):
+#     return "anaranjado"
+#   elif(color == 3):
+#     return "rojo"
+
+def getMax(matriz):
+  matriz = np.array(matriz)
+  mejor = matriz.max()
+  return mejor, matriz.index(mejor)
 
 def vpi(matriz):
   
-  print(np.array(matriz))
+  # print(np.array(matriz))
   utilidades = []
   for x in range(1, 26):
     i,j = traducir_posicion(x)
@@ -46,7 +55,6 @@ def parte1(matriz, pos):
   probDistancia[3] = getProbsAXPosiciones(matriz, pos, 3)
   probDistancia[4] = getProbsAXPosiciones(matriz, pos, 4)
 
-  # Hay que normalizar?
   return probDistancia
 
 def parte2(probDistancia):
@@ -161,15 +169,7 @@ def print_utilidades(utilidades):
   for x in range(len(utilidades)):
     print(x+1, ": ", utilidades[x])
 
+
 if __name__ == '__main__':
-  a = AgenteJ_A()
-  pos = vpi(a.infoSobreOp)
-  a.ultimaPosicion = pos[0]
-  a.jugar(1, "rojo", [SENSAR, 24, "verde"], 24)
-  pos = vpi(a.infoSobreOp)
-  a.ultimaPosicion = pos[0]
-  a.jugar(1, "amarillo", [SENSAR, 24, "rojo"], 24)
-  pos = vpi(a.infoSobreOp)
-  a.ultimaPosicion = pos[0]
-  a.jugar(1, "verde", [SENSAR, 24, "rojo"], 24)
-  print(np.array(a.infoSobreOp))
+  a = [[1,2,3,4], [5,6,7,8]]
+  print(getMax(a))

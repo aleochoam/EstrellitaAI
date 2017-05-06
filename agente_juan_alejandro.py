@@ -1,4 +1,5 @@
 from copy import deepcopy
+from vpi import *
 colores = {
   "verde"     : 0,
   "amarillo"  : 1,
@@ -78,7 +79,7 @@ class AgenteJ_A(object):
     self.infoOpSobreMi  = [[1/25 for x in range(5)] for y in range(5)] # La mia como el la ve
     self.infoSobreOp    = [[1/25 for x in range(5)] for y in range(5)] # La de el
     self.ultimaAccion   = SENSAR
-    self.ultimaPosicion = 20
+    self.ultimaPosicion = 1
     self.primera_jugada = False
 
 
@@ -87,13 +88,20 @@ class AgenteJ_A(object):
       self.primera_jugada = False
       if accion_oponente is not None:
         self.actualizar_oponente(accion_oponente)
-
+      self.ultimaPosicion = traducir_a_posicion(1,1)
       return [SENSAR, traducir_a_posicion(1,1)]
 
     self.jugador = jugador
     self.estrellita = estrellita
     self.actualizar_datos(resultado_accion)
     self.actualizar_oponente(accion_oponente)
+
+    stdMatrizActual = getUtilidad(self.infoSobreOp)
+    posASensar, utilidad = vpi(self.infoSobreOp)
+    
+    if utilidad - stdMatrizActual <= 10:
+      pass
+
 
     #Revisar si las probabilidades del oponente, luego de saber qué acción realizaron en este momento,
     #son más peligrosas que las de nosotros luego de haber recibido los datos del sensor.
@@ -166,14 +174,5 @@ class AgenteJ_A(object):
 
 if __name__ == '__main__':
   a = AgenteJ_A()
-  a.jugar(1, ACIERTO, [SENSAR, 24, "verde"], 24)
-  print("información del oponente")
-  imprimir_matriz(a.infoOpSobreMi)
-  print("información sobre oponente")
-  imprimir_matriz(a.infoSobreOp)
-  a.ultimaAccion = MOVER
-  a.jugar(1, None, [MOVER, None, None], 24)
-  print("información del oponente")
-  imprimir_matriz(a.infoOpSobreMi)
-  print("información sobre oponente")
-  imprimir_matriz(a.infoSobreOp)
+  a.jugar(1, "verde", [SENSAR, 24, "verde"], 24)
+  
