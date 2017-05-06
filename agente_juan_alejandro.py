@@ -96,13 +96,21 @@ class AgenteJ_A(object):
     self.actualizar_datos(resultado_accion)
     self.actualizar_oponente(accion_oponente)
 
-    stdMatrizActual = getUtilidad(self.infoSobreOp)
+    utilidadActual = getUtilidad(self.infoSobreOp)
     posASensar, utilidad = vpi(self.infoSobreOp)
-    
-    if utilidad - stdMatrizActual <= 10:
-      return [DISPARAR, 1] #cambiar esto TODO
+    print("Utilidad actual ", utilidadActual)
+    if utilidad - utilidadActual <= 8:
+      maxVal, posMax = getMax(self.infoSobreOp)
+      i,j = posMax
+      print("Disparar en ", posMax)
+      self.ultimaPosicion = traducir_a_posicion(i,j)
+      self.ultimaAccion = DISPARAR
+      return [DISPARAR, traducir_a_posicion(i,j)] #cambiar esto TODO
     else:
-      #sensar en posASensar
+      print("Sensar en ", posASensar)
+      self.ultimaPosicion = posASensar
+      self.ultimaAccion = SENSAR
+      return [SENSAR, posASensar]
 
 
     #Revisar si las probabilidades del oponente, luego de saber qué acción realizaron en este momento,
@@ -176,5 +184,22 @@ class AgenteJ_A(object):
 
 if __name__ == '__main__':
   a = AgenteJ_A()
-  a.jugar(1, "verde", [SENSAR, 24, "verde"], 24)
-  
+  color = getColor(a.ultimaPosicion)
+  print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
+  [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
+  numerito = int(input("Ingrese accion: "))
+  while(numerito >= 0):
+    if(accion == DISPARAR):
+      if(parametroAccion == 13):
+        print("Le diste ppeeeerrroooo")
+        [accion, parametroAccion] = a.jugar(1, ACIERTO, [SENSAR, 24, "verde"], 24)
+      else:
+        print("Fallaste perrroooo")
+        [accion, parametroAccion] = a.jugar(1, FALLO, [SENSAR, 24, "verde"], 24)
+    elif(accion == SENSAR):
+        color = getColor(a.ultimaPosicion)
+        print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
+        [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
+    numerito = int(input("Ingrese accion: "))
+    
+  print(np.array(a.infoSobreOp))
