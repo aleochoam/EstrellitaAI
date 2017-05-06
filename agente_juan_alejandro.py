@@ -1,3 +1,4 @@
+from copy import deepcopy
 colores = {
   "verde"     : 0,
   "amarillo"  : 1,
@@ -5,7 +6,7 @@ colores = {
   "rojo"      : 3
 }
 
-pastel =  [[0.70, 0.15, 0.1, 0.05],
+sensor =  [[0.70, 0.15, 0.1, 0.05],
            [0.17, 0.6, 0.17, 0.06],
            [0.06, 0.17, 0.6, 0.17],
            [0.05, 0.12, 0.23, 0.6],
@@ -60,6 +61,13 @@ def imprimir_matriz(matriz):
       print(y, end=" ")
     print("")
 
+def actualizar_probabilidades(matriz, posicionSensada, color):
+  nuevaMatriz = deepcopy(matriz)
+  for i in range(len(matriz)):
+    for j in range(len(matriz[i])):
+      distancia = getDistancia((i,j), traducir_posicion(posicionSensada))
+      nuevaMatriz[i][j] *= sensor[distancia][colores[color]]
+  return normalizar(nuevaMatriz)
 
 class AgenteJ_A(object):
   """Agente realizado por Juan Daniel Morales y Alejandro Ochoa"""
@@ -69,7 +77,7 @@ class AgenteJ_A(object):
     self.estrellita     = 0 # Donde esta mi estrella
     self.infoOpSobreMi  = [[1/25 for x in range(5)] for y in range(5)] # La mia como el la ve
     self.infoSobreOp    = [[1/25 for x in range(5)] for y in range(5)] # La de el
-    self.ultimaAccion   = DISPARAR
+    self.ultimaAccion   = SENSAR
     self.ultimaPosicion = 20
     self.primera_jugada = False
 
@@ -105,16 +113,14 @@ class AgenteJ_A(object):
     if self.ultimaAccion == DISPARAR:
       if resultado_accion == ACIERTO: # Se reestablecen las probabilidades
         i,j = traducir_posicion(self.ultimaPosicion)
-        print(i,j)
         self.infoSobreOp[i][j] = 1
       elif resultado_accion == FALLO: #Bajar las probabilidades a cero
         i,j = traducir_posicion(self.ultimaPosicion)
-        print(i,j)
         self.infoSobreOp[i][j] = 0
       self.infoSobreOp = normalizar(self.infoSobreOp)
 
     elif self.ultimaAccion == SENSAR:
-      self.infoSobreOp = self.actualizar_probabilidades(self.infoSobreOp, self.ultimaPosicion, resultado_accion)
+      self.infoSobreOp = actualizar_probabilidades(self.infoSobreOp, self.ultimaPosicion, resultado_accion)
 
     elif self.ultimaAccion == MOVER:
       self.infoOpSobreMi =  self.mover_probabilidades(self.infoOpSobreMi)
@@ -129,7 +135,7 @@ class AgenteJ_A(object):
         else:
           self.ultimaPosicion = self.estrellita + 1
     elif tipoAccion == SENSAR:
-      self.infoOpSobreMi = self.actualizar_probabilidades(self.infoOpSobreMi, parametroAccion, resultado)
+      self.infoOpSobreMi = actualizar_probabilidades(self.infoOpSobreMi, parametroAccion, resultado)
     elif tipoAccion == MOVER:
       self.infoSobreOp = self.mover_probabilidades(self.infoSobreOp)
 
@@ -156,12 +162,6 @@ class AgenteJ_A(object):
     matrizMovida = normalizar(matrizMovida)
     return matrizMovida
 
-  def actualizar_probabilidades(self, matriz, posicionSensada, color):
-    for i in range(len(matriz)):
-      for j in range(len(matriz[i])):
-        distancia = getDistancia((i,j), traducir_posicion(posicionSensada))
-        matriz[i][j] *= pastel[distancia][colores[color]]
-    return normalizar(matriz)
 
 
 if __name__ == '__main__':
