@@ -4,6 +4,8 @@ AI agent that plays twinky little star
 Para jugar con el agente primero se instancia y luego se le llama el metodo jugar
 asi:
 
-agenteJA = AgenteJ_A(1) # Como argumento se pasa el jugador
+agenteJA = AgenteJ_A()
 
-agenteJA.jugar(parametros)
+accion, parametro = agenteJA.jugar(jugador, resultado_accion, [tipo_accion, parametro, resultado], estrellita)
+
+Para ejecutar el codigo, se necesita numpy

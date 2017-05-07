@@ -4,26 +4,26 @@ import numpy as np
 
 from agente_juan_alejandro import *
 
-estrellita = (2,2)
-def getColor(celda):
-  i,j = traducir_posicion(celda)
-  distancia = getDistancia((i,j), estrellita)
-  rand = random.random()
-  prob = 0
-  color = 0
-  for j in range (len(sensor[distancia])):
-    prob += sensor[distancia][j]
-    if(rand<prob):
-      color = j
-      break
-  if(color == 0):
-    return "verde"
-  elif(color == 1):
-    return "amarillo"
-  elif(color == 2):
-    return "anaranjado"
-  elif(color == 3):
-    return "rojo"
+# estrellita = (2,2)
+# def getColor(celda):
+#   i,j = traducir_posicion(celda)
+#   distancia = getDistancia((i,j), estrellita)
+#   rand = random.random()
+#   prob = 0
+#   color = 0
+#   for j in range (len(sensor[distancia])):
+#     prob += sensor[distancia][j]
+#     if(rand<prob):
+#       color = j
+#       break
+#   if(color == 0):
+#     return "verde"
+#   elif(color == 1):
+#     return "amarillo"
+#   elif(color == 2):
+#     return "anaranjado"
+#   elif(color == 3):
+#     return "rojo"
 
 def getMax(matriz):
   matriz = np.array(matriz)
