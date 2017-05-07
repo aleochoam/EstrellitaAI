@@ -204,28 +204,26 @@ class AgenteJ_A(object):
 if __name__ == '__main__':
   a = AgenteJ_A()
   a.jugar(1, None, [SENSAR, 3, "amarillo"], 5)
-  dondeMover = a.dondeMover()
-  print(dondeMover)
 
-  # color = getColor(a.ultimaPosicion)
-  # print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
-  # imprimir_matriz(a.infoSobreOp)
-  # [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
-  # numerito = int(input("Ingrese accion: "))
-  # while(numerito >= 0):
-  #   if(accion == DISPARAR):
-  #     if(parametroAccion == traducir_posicion(estrellita)):
-  #       print("Le diste ppeeeerrroooo")
-  #       [accion, parametroAccion] = a.jugar(1, ACIERTO, [MOVER, None, None], 24)
-  #       estrellita = random.choice(a.get_movimientos_posibles((estrellita)))
-  #     else:
-  #       print("Fallaste perrroooo")
-  #       [accion, parametroAccion] = a.jugar(1, FALLO, [SENSAR, 24, "verde"], 24)
-  #   elif(accion == SENSAR):
-  #       color = getColor(a.ultimaPosicion)
-  #       print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
-  #       [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
-  #   imprimir_matriz(a.infoSobreOp)
-  #   numerito = int(input("Ingrese accion: "))
+  color = getColor(a.ultimaPosicion)
+  print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
+  imprimir_matriz(a.infoSobreOp)
+  [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
+  numerito = int(input("Ingrese accion: "))
+  while(numerito >= 0):
+    if(accion == DISPARAR):
+      if(parametroAccion == traducir_posicion(estrellita)):
+        print("Le diste ppeeeerrroooo")
+        [accion, parametroAccion] = a.jugar(1, ACIERTO, [MOVER, None, None], 24)
+        estrellita = random.choice(a.get_movimientos_posibles((estrellita)))
+      else:
+        print("Fallaste perrroooo")
+        [accion, parametroAccion] = a.jugar(1, FALLO, [SENSAR, 24, "verde"], 24)
+    elif(accion == SENSAR):
+        color = getColor(a.ultimaPosicion)
+        print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
+        [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
+    imprimir_matriz(a.infoSobreOp)
+    numerito = int(input("Ingrese accion: "))
     
   # print(np.array(a.infoSobreOp))
