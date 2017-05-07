@@ -100,6 +100,10 @@ class AgenteJ_A(object):
     self.actualizar_datos(resultado_accion)
     self.actualizar_oponente(accion_oponente)
 
+    tipoAccion, parametroAccion, resultado = accion_oponente
+    if tipoAccion == DISPARAR and resultado == ACIERTO:
+      return [MOVER, random.choice([1,2,3,4])]
+
     maxVal, posMax = getMax(self.infoOpSobreMi)
     if maxVal >= 0.4 and posMax == self.estrellita:
       direccion = dondeMover()
@@ -160,13 +164,9 @@ class AgenteJ_A(object):
 
   def actualizar_oponente(self, accion_oponente):
     tipoAccion, parametroAccion, resultado = accion_oponente
-    if tipoAccion == DISPARAR:
-      if parametroAccion == ACIERTO:
-        self.ultimaAccion = MOVER
-        if self.estrellita < 0:
-          self.ultimaPosicion = self.estrellita - 1
-        else:
-          self.ultimaPosicion = self.estrellita + 1
+    if tipoAccion == DISPARAR and resultado == FALLO:  # Ya se comprobo el caso contrario
+      i,j = traducir_posicion(parametroAccion)
+      self.infoOpSobreMi[i][j] = 0
     elif tipoAccion == SENSAR:
       self.infoOpSobreMi = actualizar_probabilidades(self.infoOpSobreMi, parametroAccion, resultado)
     elif tipoAccion == MOVER:
