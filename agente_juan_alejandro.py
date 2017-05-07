@@ -1,7 +1,8 @@
+from vpi import *
+
 from copy import deepcopy
 import random
-from vpi import *
-import sys
+
 colores = {
   "verde"     : 0,
   "amarillo"  : 1,
@@ -100,7 +101,7 @@ class AgenteJ_A(object):
     self.actualizar_oponente(accion_oponente)
 
     maxVal, posMax = getMax(self.infoOpSobreMi)
-    if maxVal >= 0.65 and posMax == self.estrellita:
+    if maxVal >= 0.4 and posMax == self.estrellita:
       direccion = dondeMover()
       self.ultimaAccion = MOVER
       return direccion
