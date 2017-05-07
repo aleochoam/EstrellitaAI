@@ -1,4 +1,5 @@
 from copy import deepcopy
+import random
 from vpi import *
 import sys
 colores = {
@@ -77,12 +78,12 @@ class AgenteJ_A(object):
   def __init__(self):
     super(AgenteJ_A, self).__init__()
     self.jugador        = 0
-    self.estrellita     = 0 # Donde esta mi estrella
+    self.estrellita     = 5 # Donde esta mi estrella
     self.infoOpSobreMi  = [[1/25 for x in range(5)] for y in range(5)] # La mia como el la ve
     self.infoSobreOp    = [[1/25 for x in range(5)] for y in range(5)] # La de el
     self.ultimaAccion   = SENSAR
-    self.ultimaPosicion = 1
-    self.primera_jugada = False
+    self.ultimaPosicion = 0
+    self.primera_jugada = True
 
 
   def jugar(self, jugador, resultado_accion, accion_oponente, estrellita):
@@ -90,8 +91,8 @@ class AgenteJ_A(object):
       self.primera_jugada = False
       if accion_oponente is not None:
         self.actualizar_oponente(accion_oponente)
-      self.ultimaPosicion = traducir_posicion(1,1)
-      return [SENSAR, traducir_posicion(1,1)]
+      self.ultimaPosicion = traducir_posicion((1,1))
+      return [SENSAR, traducir_posicion((1,1))]
 
     self.jugador = jugador
     self.estrellita = estrellita
@@ -100,12 +101,10 @@ class AgenteJ_A(object):
 
     maxVal, posMax = getMax(self.infoOpSobreMi)
     if maxVal >= 0.65 and posMax == self.estrellita:
+      direccion = dondeMover()
       self.ultimaAccion = MOVER
-      self.ultimaPosicion = (0,0)
-      if estrellita > 0:
-        return [MOVER, IZQUIERDA]
-      else:
-        return [MOVER, DERECHA]
+      return direccion
+      
 
     utilidadActual = getUtilidad(self.infoSobreOp)
     posASensar, utilidad = vpi(self.infoSobreOp)
@@ -123,6 +122,23 @@ class AgenteJ_A(object):
       self.ultimaAccion = SENSAR
       return [SENSAR, posASensar]
 
+  def dondeMover(self):
+    estrella = traducir_posicion(self.estrellita)
+    posMovs = self.get_movimientos_posibles(estrella)
+    if (estrella in posMovs):
+       posMovs.remove(estrella)
+    
+    probs_movs = [(self.infoOpSobreMi[mov[0]][mov[1]], mov) for mov in posMovs]
+    nuevaCelda = random.choice(sorted(probs_movs)[:2])
+    nuevaCelda = nuevaCelda[1]
+    movimientos = [(-1,0), (0,1), (1,0), (0,-1)]
+    
+    for mov in movimientos:
+      candidato = estrella[0] + mov[0], estrella[1] + mov[1]
+      if candidato == nuevaCelda:
+        return movimientos.index(mov)+1
+
+        
 
   def actualizar_datos(self, resultado_accion):
     if self.ultimaAccion == DISPARAR:
@@ -162,6 +178,10 @@ class AgenteJ_A(object):
   def get_movimientos_posibles(self, celda):
     movimientos = [(-1,0),(1,0),(0,-1),(0,1)]
     celdasPosibles = []
+
+    if celda[0] == 0 or celda[0] == 4 or celda[1] == 0 or celda[1] == 4:
+      celdasPosibles.append(celda)
+
     for i in range(len(movimientos)):
       movimientoNuevo = (celda[0] + movimientos[i][0], celda[1] + movimientos[i][1])
       if(self.movimientoPermitido(movimientoNuevo)):
@@ -182,25 +202,29 @@ class AgenteJ_A(object):
 
 if __name__ == '__main__':
   a = AgenteJ_A()
-  color = getColor(a.ultimaPosicion)
-  print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
-  imprimir_matriz(a.infoSobreOp)
-  [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
-  numerito = int(input("Ingrese accion: "))
-  while(numerito >= 0):
-    if(accion == DISPARAR):
-      if(parametroAccion == traducir_posicion(estrellita)):
-        print("Le diste ppeeeerrroooo")
-        [accion, parametroAccion] = a.jugar(1, ACIERTO, [MOVER, None, None], 24)
-        estrellita = (2,3)
-      else:
-        print("Fallaste perrroooo")
-        [accion, parametroAccion] = a.jugar(1, FALLO, [SENSAR, 24, "verde"], 24)
-    elif(accion == SENSAR):
-        color = getColor(a.ultimaPosicion)
-        print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
-        [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
-    imprimir_matriz(a.infoSobreOp)
-    numerito = int(input("Ingrese accion: "))
+  a.jugar(1, None, [SENSAR, 3, "amarillo"], 5)
+  dondeMover = a.dondeMover()
+  print(dondeMover)
+
+  # color = getColor(a.ultimaPosicion)
+  # print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
+  # imprimir_matriz(a.infoSobreOp)
+  # [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
+  # numerito = int(input("Ingrese accion: "))
+  # while(numerito >= 0):
+  #   if(accion == DISPARAR):
+  #     if(parametroAccion == traducir_posicion(estrellita)):
+  #       print("Le diste ppeeeerrroooo")
+  #       [accion, parametroAccion] = a.jugar(1, ACIERTO, [MOVER, None, None], 24)
+  #       estrellita = random.choice(a.get_movimientos_posibles((estrellita)))
+  #     else:
+  #       print("Fallaste perrroooo")
+  #       [accion, parametroAccion] = a.jugar(1, FALLO, [SENSAR, 24, "verde"], 24)
+  #   elif(accion == SENSAR):
+  #       color = getColor(a.ultimaPosicion)
+  #       print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
+  #       [accion, parametroAccion] = a.jugar(1, color, [SENSAR, 24, "verde"], 24)
+  #   imprimir_matriz(a.infoSobreOp)
+  #   numerito = int(input("Ingrese accion: "))
     
-  print(np.array(a.infoSobreOp))
+  # print(np.array(a.infoSobreOp))

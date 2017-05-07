@@ -25,7 +25,6 @@ def getColor(celda):
   elif(color == 3):
     return "rojo"
 
-#Arreglar
 def getMax(matriz):
   matriz = np.array(matriz)
   mejor = matriz.max()
@@ -35,7 +34,6 @@ def getMax(matriz):
 
 def vpi(matriz):
   
-  # print(np.array(matriz))
   utilidades = []
   for x in range(1, 26):
     i,j = traducir_posicion(x)
@@ -45,7 +43,6 @@ def vpi(matriz):
     utilidades.append(simular(matriz, (i,j), probColor))
 
   mejorUtilidad = max(utilidades)
-  print("La mejor utilidad la tiene la posicion ", utilidades.index(mejorUtilidad)+1, "con: ", mejorUtilidad)
   return utilidades.index(mejorUtilidad)+1, mejorUtilidad
 
 def parte1(matriz, pos):
@@ -166,11 +163,6 @@ def getCasillasAXPosiciones(matriz, pos, x):
       if getDistancia((i,j), pos) == x:
         celdas.append((i,j))
   return celdas
-
-def print_utilidades(utilidades):
-  for x in range(len(utilidades)):
-    print(x+1, ": ", utilidades[x])
-
 
 if __name__ == '__main__':
   pass
