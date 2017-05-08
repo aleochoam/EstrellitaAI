@@ -84,32 +84,33 @@ class AgenteJ_A(object):
     self.infoSobreOp    = [[1/25 for x in range(5)] for y in range(5)] # La de el
     self.ultimaAccion   = None
     self.ultimaPosicion = 0
-    self.primera_jugada = True
+    self.primera_jugada = False
 
 
   def jugar(self, jugador, resultado_accion, accion_oponente, estrellita):
-    if self.primera_jugada:
-      self.primera_jugada = False
-      if accion_oponente is not None and accion_oponente[0] is not None:
-        self.actualizar_oponente(accion_oponente)
-      self.ultimaPosicion = traducir_posicion((1,1))
-      self.ultimaAccion = SENSAR
-      return [SENSAR, traducir_posicion((1,1))]
-
+    # if self.primera_jugada:
+    #   self.primera_jugada = False
+    #   if accion_oponente is not None and accion_oponente[0] is not None:
+    #     self.actualizar_oponente(accion_oponente)
+    #   self.ultimaPosicion = traducir_posicion((1,1))
+    #   self.ultimaAccion = SENSAR
+    #   return [SENSAR, traducir_posicion((1,1))]
+    
     self.jugador = jugador
     self.estrellita = estrellita
     self.actualizar_datos(resultado_accion)
     self.actualizar_oponente(accion_oponente)
 
     maxVal, posMax = getMax(self.infoOpSobreMi)
-    if maxVal >= 0.33 and posMax == self.estrellita:
-      direccion = dondeMover()
+    if maxVal >= 0.33 and posMax == traducir_posicion(self.estrellita):
+      direccion = self.dondeMover()
       self.ultimaAccion = MOVER
+      #print("mover a ", direccion)
       return [MOVER, direccion]
       
 
     maxVal, posMax = getMax(self.infoSobreOp)
-    if(maxVal >= 0.30):
+    if(maxVal >= 0.25):
       self.ultimaPosicion = traducir_posicion(posMax)
       self.ultimaAccion = DISPARAR
       return [DISPARAR, traducir_posicion(posMax)]
@@ -119,13 +120,12 @@ class AgenteJ_A(object):
     # print("Utilidad actual ", utilidadActual)
     
     if utilidad - utilidadActual <= 8:
-      maxVal, posMax = getMax(self.infoSobreOp)
       # print("Disparar en ", posMax)
       self.ultimaPosicion = traducir_posicion(posMax)
       self.ultimaAccion = DISPARAR
       return [DISPARAR, traducir_posicion(posMax)]
     else:
-      # print("Sensar en ", posASensar)
+      #print("Sensar en ", posASensar)
       self.ultimaPosicion = posASensar
       self.ultimaAccion = SENSAR
       return [SENSAR, posASensar]
@@ -212,9 +212,6 @@ class AgenteJ_A(object):
 
 if __name__ == '__main__':
   pass
-  # a = AgenteJ_A()
-  # a.jugar(1, None, [SENSAR, 3, "amarillo"], 5)
-
   # color = getColor(a.ultimaPosicion)
   # print("Te salio color ", color, " en la posicion ", a.ultimaPosicion)
   # imprimir_matriz(a.infoSobreOp)
