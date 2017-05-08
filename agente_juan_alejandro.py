@@ -102,11 +102,17 @@ class AgenteJ_A(object):
     self.actualizar_oponente(accion_oponente)
 
     maxVal, posMax = getMax(self.infoOpSobreMi)
-    if maxVal >= 0.4 and posMax == self.estrellita:
+    if maxVal >= 0.33 and posMax == self.estrellita:
       direccion = dondeMover()
       self.ultimaAccion = MOVER
       return [MOVER, direccion]
       
+
+    maxVal, posMax = getMax(self.infoSobreOp)
+    if(maxVal >= 0.30):
+      self.ultimaPosicion = traducir_posicion(posMax)
+      self.ultimaAccion = DISPARAR
+      return [DISPARAR, traducir_posicion(posMax)]
 
     utilidadActual = getUtilidad(self.infoSobreOp)
     posASensar, utilidad = vpi(self.infoSobreOp)

@@ -125,28 +125,28 @@ def getUtilidad(matriz):
 
   if 0 <= desvEst < 0.025:
     # print("1")
-    return 12.5
+    return 10
   elif 0.025 <= desvEst < 0.05:
     # print("2")
-    return 25
+    return 20
   elif 0.05 <= desvEst < 0.075:
     # print("3")
-    return 37.5
+    return 33
   elif 0.075 <= desvEst < 0.1:
     # print("4")
-    return 50
+    return 40
   elif 0.1 <= desvEst < 0.125:
     # print("5")
-    return 62.5
+    return 70
   elif 0.125 <= desvEst < 0.15:
     # print("6")
-    return 75
+    return 80
   elif 0.15 <= desvEst < 0.175:
     # print("7")
-    return 87.5
+    return 100
   elif 0.175 <= desvEst < 0.2:
     # print("8")
-    return 100
+    return 120
   else:
     return 125
 
